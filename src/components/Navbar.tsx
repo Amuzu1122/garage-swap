@@ -5,7 +5,7 @@ import { RiSearchLine } from "@remixicon/react";
 
 export default function Navbar() {
   return (
-    <nav className="flex items-center justify-between px-60 py-4 font-[Inter]">
+    <nav className="flex items-center justify-between px-60 py-4 font-[Inter] fixed top-0 left-0 w-full">
       <div className="flex items-center gap-8">
         <span className="flex items-center gap-2">
           <span className="material-symbols-outlined font-extrabold text-[#f48c25]">
