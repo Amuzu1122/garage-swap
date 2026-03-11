@@ -1,22 +1,17 @@
-import type { MouseEvent } from "react";
-
 type BtnBigTypes = {
   btnBg: string;
   textColor: string;
   text: string;
-  onsubmit?: (e: MouseEvent<HTMLButtonElement>) => void;
+  type?: "button" | "submit" | "reset";
+  disabled?: boolean;
 };
 
-export default function BtnBig({
-  btnBg,
-  textColor,
-  text,
-  onsubmit,
-}: BtnBigTypes) {
+export default function BtnBig({ btnBg, textColor, text, type = "button", disabled }: BtnBigTypes) {
   return (
     <button
-      onClick={onsubmit}
-      className={`py-3 ${btnBg} text-lg shadow-sm rounded-md text-center ${textColor}`}
+      type={type}
+      disabled={disabled}
+      className={`py-3 ${btnBg} text-lg shadow-sm rounded-md text-center ${textColor} w-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
     >
       {text}
     </button>

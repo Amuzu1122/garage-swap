@@ -1,123 +1,62 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import BtnBig from "../components/shared/BtnBig";
 import Input from "../components/shared/Input";
 import { RiMailFill, RiLockFill, RiUserFill } from "@remixicon/react";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "../lib/supabase";
 
 export default function SignIn() {
-  const date = new Date();
   const [isSignUp, setIsSignUp] = useState<boolean>(true);
-  const [username, setUsername] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState(" ");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const setSignUp = () => {
-    setIsSignUp(!isSignUp);
-  };
+  const { signUp, signIn } = useAuth();
+  const navigate = useNavigate();
 
-  const userVal = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(e.target.value);
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setMessage(null);
+    setLoading(true);
 
-  const emailVal = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const passwordVal = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
-  // check if the user exists - NOT MY CODE, CHATGPT CODE FOR THIS FUNCTION
-  async function ensureProfileExists(userId: string, email?: string) {
-    // Make sure email exists
-    if (!email) {
-      console.error("Cannot create profile: user has no email.");
-      return;
-    }
-
-    try {
-      // Check if profile already exists
-      const { data: existingProfile, error: fetchError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", userId)
-        .single();
-
-      if (fetchError && fetchError.code !== "PGRST116") {
-        // PGRST116 = "row not found", safe to ignore
-        console.error("Error fetching profile:", fetchError.message);
-        return;
-      }
-
-      if (!existingProfile) {
-        //Create profile if it doesn't exist
-        const { data: profileData, error: insertError } = await supabase
-          .from("profiles")
-          .insert([
-            {
-              user_id: userId,
-              email: email,
-              username: "", // empty for now, user can set later
-              date_joined: new Date().toISOString(),
-            },
-          ]);
-
-        if (insertError) {
-          console.error("Failed to create profile:", insertError.message);
-        } else {
-          console.log("Profile created!", profileData);
-        }
+    if (isSignUp) {
+      const { error } = await signUp(email, password);
+      if (error) {
+        setError(error.message);
       } else {
-        console.log("Profile already exists:", existingProfile);
+        // Update the profile with the username after sign-up
+        // The profile row is auto-created by the DB trigger on auth.users insert
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && username) {
+          await supabase
+            .from("profiles")
+            .update({ full_name: username })
+            .eq("id", user.id);
+        }
+        setMessage("Check your email for a confirmation link!");
       }
-    } catch (err) {
-      console.error("Unexpected error in ensureProfileExists:", err);
-    }
-  }
-
-  // supabase log in / sign up functions here
-  async function handleSignIn(email: string, password: string): Promise<any> {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      console.log("sorry, ", error);
     } else {
-      console.log(data);
+      const { error } = await signIn(email, password);
+      if (error) {
+        setError(error.message);
+      } else {
+        navigate("/");
+      }
     }
 
-    if (data.user) await ensureProfileExists(data.user.id, data.user.email);
-  }
+    setLoading(false);
+  };
 
-  async function handleSignUp(email: string, password: string) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
-      console.log("sorry, ", error);
-    } else {
-      console.log("successful", data);
-    }
-
-    const { data: profileData, error: profileError } = await supabase
-      .from("profiles")
-      .insert([
-        {
-          username: username,
-          email: email,
-        },
-      ]);
-
-    if (profileError) {
-      console.log(profileError);
-    } else {
-      console.log(profileData);
-    }
-  }
+  const toggleSignUp = () => {
+    setIsSignUp(!isSignUp);
+    setError(null);
+    setMessage(null);
+  };
 
   return (
     <div className="min-h-screen w-screen flex flex-col lg:flex-row items-stretch">
@@ -153,7 +92,7 @@ export default function SignIn() {
 
       {/* RIGHT SIDE FORM */}
       <div className="flex-1 flex items-center justify-center px-6 sm:px-12 lg:px-20 py-10 lg:py-0">
-        <form className="w-full max-w-md flex flex-col gap-6 lg:gap-8 font-[Inter]">
+        <form onSubmit={handleSubmit} className="w-full max-w-md flex flex-col gap-6 lg:gap-8 font-[Inter]">
           {/* Header */}
           <div>
             <h4 className="text-3xl lg:text-4xl font-bold text-[#0F172A]">
@@ -166,8 +105,20 @@ export default function SignIn() {
             </p>
           </div>
 
-          {/* username */}
-          {isSignUp ? (
+          {/* Error / Success messages */}
+          {error && (
+            <div className="bg-red-50 text-red-600 text-sm p-3 rounded-md">
+              {error}
+            </div>
+          )}
+          {message && (
+            <div className="bg-green-50 text-green-600 text-sm p-3 rounded-md">
+              {message}
+            </div>
+          )}
+
+          {/* Username — only on sign up */}
+          {isSignUp && (
             <div className="flex flex-col gap-2">
               <label
                 htmlFor="username"
@@ -180,13 +131,13 @@ export default function SignIn() {
                 name="username"
                 type="text"
                 value={username}
-                onchange={(e) => userVal(e)}
+                onChange={(e) => setUsername(e.target.value)}
                 placeholder="cookingpot237"
                 icon={<RiUserFill color="#94A3B8" />}
                 required
               />
             </div>
-          ) : null}
+          )}
 
           {/* Email */}
           <div className="flex flex-col gap-2">
@@ -201,7 +152,7 @@ export default function SignIn() {
               name="email"
               type="email"
               value={email}
-              onchange={(e) => emailVal(e)}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="neighbour@example.com"
               icon={<RiMailFill color="#94A3B8" />}
               required
@@ -221,7 +172,7 @@ export default function SignIn() {
               name="password"
               type="password"
               value={password}
-              onchange={passwordVal}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               icon={<RiLockFill color="#94A3B8" />}
               required
@@ -230,15 +181,11 @@ export default function SignIn() {
 
           {/* Submit */}
           <BtnBig
-            text={isSignUp ? "Create Account" : "Sign In"}
+            text={loading ? "Please wait..." : isSignUp ? "Create Account" : "Sign In"}
             textColor="text-white"
             btnBg="bg-[#F48C25]"
-            onsubmit={(e) => {
-              e.preventDefault();
-              isSignUp
-                ? handleSignUp(email, password)
-                : handleSignIn(email, password);
-            }}
+            type="submit"
+            disabled={loading}
           />
 
           <div className="flex items-center gap-4">
@@ -264,7 +211,7 @@ export default function SignIn() {
             {isSignUp ? "Already have an account? " : "Don't have an account? "}
             <span
               className="text-[#F48C25] font-semibold cursor-pointer hover:underline"
-              onClick={setSignUp}
+              onClick={toggleSignUp}
             >
               {isSignUp ? "Sign In" : "Create an account"}
             </span>
