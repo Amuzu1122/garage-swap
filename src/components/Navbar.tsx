@@ -30,7 +30,7 @@ export default function Navbar() {
             Browse
           </Link>
           <Link
-            to="/"
+            to="/how-it-works"
             className="text-slate-700 font-medium hover:text-[#F48C25] transition-colors"
           >
             How it Works
