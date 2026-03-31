@@ -23,7 +23,7 @@ export default function Input({
   passwordIcon,
 }: inputTypes) {
   return (
-    <div className="p-2 bg-white border rounded-md border-[#F48C2520] flex items-center gap-2 shadow-xs relative">
+    <div className="p-3 bg-white border rounded-md border-[#F48C2520] flex items-center gap-2 shadow-xs relative">
       {icon}
       <input
         className="outline-none flex-1 mr-10"

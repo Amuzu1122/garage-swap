@@ -16,7 +16,7 @@ export default function SignIn() {
   const [isSignUp, setIsSignUp] = useState<boolean>(true);
   const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState(" ");
+  const [password, setPassword] = useState("");
   const [isPassword, setIsPassword] = useState<Boolean>(true);
   let date_today = new Date().toISOString().split("T")[0];
 
@@ -50,6 +50,7 @@ export default function SignIn() {
       navigate("/profile");
     }
   }
+
   // sign up functions here
   async function handleSignUp(
     email: string,

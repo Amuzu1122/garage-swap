@@ -6,8 +6,9 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home.tsx";
 import HowItWorks from "./pages/Howitworkspage.tsx";
 import SignIn from "./pages/SignIn.tsx";
-import Profile from "./pages/Profile.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
+import ProtectedRoute from "./auth/ProtectedRoute.tsx";
+import Profile from "./pages/Profile.tsx";
 
 const router = createBrowserRouter([
   {
@@ -24,8 +25,21 @@ const router = createBrowserRouter([
       },
       {
         path: "/how-it-works",
-        element: <HowItWorks/>,
-      }
+        element: <HowItWorks />,
+      },
+      {
+        path: "/forgotpassword",
+        element: <ForgotPassword />,
+      },
+      {
+        element: <ProtectedRoute />,
+        children: [
+          {
+            path: "/profile",
+            element: <Profile />,
+          },
+        ],
+      },
     ],
   },
 ]);

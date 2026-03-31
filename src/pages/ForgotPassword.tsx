@@ -1,25 +1,64 @@
-import { RiInformationFill, RiMailFill } from "@remixicon/react";
+import { useState, useEffect } from "react";
+import { RiArrowLeftLine, RiKeyFill, RiMailFill } from "@remixicon/react";
+import { useNavigate } from "react-router-dom";
 import Input from "../components/shared/Input";
-import Button from "../components/shared/Button";
+import BtnBig from "../components/shared/BtnBig";
+import { supabase } from "../lib/supabaseClient";
 
 const ForgotPassword = () => {
+  const [email, setEmail] = useState<string>("");
+  const navigate = useNavigate();
+
+  const userEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  async function handleEmailReset(email: string) {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+
+    if (data) {
+      console.log("email sent successfully");
+    } else {
+      console.log(error);
+    }
+  }
+
   return (
-    <section className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] p-4 rounded-lg max-w-2xl flex flex-col items-start gap-2 font-[Inter]">
-      <div className="flex items-center gap-2">
-        <RiInformationFill color="#F48C25" />
-        <p className="text-lg text-[#F48C25] font-semibold">Forgot Password?</p>
+    <section className="absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] flex flex-col items-center max-w-lg ">
+      <div className="p-4 bg-white rounded-lg">
+        <RiKeyFill color="#f48c25" size={32} />
       </div>
-      <p>
-        Enter your email address, you will be sent a link to reset your password
-        if your email has an account on GarageSwap.
+      <p className="text-3xl font-[Playfair_Display]">Reset Your Password</p>
+      <p className="font-[Inter] text-lg text-center w-2/3 mt-5 text-slate-700">
+        Enter the email address associated with your account and we will send
+        you a link to reset your password.
       </p>
-      <div className="flex items-center gap-2">
-        <Input
-          icon={<RiMailFill color="#F48C25" />}
-          placeholder="Enter your email"
-          name=""
+      <div className="p-8 mt-5 rounded-md bg-white flex flex-col items-start gap-4 w-full">
+        <label htmlFor="email" className="w-full ">
+          <span className="font-[Inter] font-semibold text-slate-700 text-sm">
+            EMAIL ADDRESS
+          </span>
+          <Input
+            placeholder="eg. neighbourhood@gmail.com"
+            type="email"
+            icon={<RiMailFill color="#f48c25" />}
+            value={email}
+            onchange={(e) => userEmail(e)}
+          />
+        </label>
+        <BtnBig
+          text="Send Reset Link"
+          textColor="text-white"
+          btnBg="bg-[#f48c25]"
+          onsubmit={() => handleEmailReset(email)}
         />
-        <Button text="Send Email" btnBg="bg-[#F48C25]" textColor="text-white" />
+        <div
+          className="flex items-center justify-center gap-3 w-full cursor-pointer"
+          onClick={() => navigate("/sign-in")}
+        >
+          <RiArrowLeftLine color="text-slate-700" />
+          Back To Login
+        </div>
       </div>
     </section>
   );
