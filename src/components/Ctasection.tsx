@@ -9,7 +9,7 @@ export default function Ctasection() {
           <p className="text-gray-400 text-lg mb-8 max-w-md mx-auto">
             Join thousands of neighbors already buying and selling on GarageSwap. It's fast, free, and fun.
           </p>
-          <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-10 py-4 rounded-lg text-lg transition-colors">
+          <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-10 py-4 rounded-lg text-lg transition-colors cursor-pointer">
             Start Selling Now
           </button>
         </div>
