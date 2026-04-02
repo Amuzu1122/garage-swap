@@ -4,15 +4,26 @@ import { useAuth } from "../context/AuthContext";
 import Button from "./shared/Button";
 import Input from "./shared/Input";
 import { RiSearchLine, RiMenuLine, RiCloseLine } from "@remixicon/react";
+import { searchItems } from "../services/items";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    const { data } = await searchItems(searchQuery.trim());
+    // Navigate to home and pass the search results + query via router state
+    navigate("/", { state: { searchResults: data ?? [], searchQuery } });
+    setMenuOpen(false);
   };
 
   return (
@@ -53,10 +64,14 @@ export default function Navbar() {
 
         {/* Desktop right side */}
         <div className="hidden md:flex flex-row items-center gap-4 lg:gap-8">
-          <Input
-            placeholder="Search for an item"
-            icon={<RiSearchLine color="#F48C25" />}
-          />
+          <form onSubmit={handleSearch}>
+            <Input
+              placeholder="Search for an item"
+              icon={<RiSearchLine color="#F48C25" />}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </form>
           {user ? (
             <>
               <span className="text-sm text-slate-600 truncate max-w-[150px]">
@@ -124,10 +139,14 @@ export default function Navbar() {
         <div className="md:hidden border-t border-orange-100 bg-[#f5f0e8] px-6 pb-5 flex flex-col gap-4">
           {/* Search */}
           <div className="pt-4">
-            <Input
-              placeholder="Search for an item"
-              icon={<RiSearchLine color="#F48C25" />}
-            />
+            <form onSubmit={handleSearch}>
+              <Input
+                placeholder="Search for an item"
+                icon={<RiSearchLine color="#F48C25" />}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </form>
           </div>
 
           {/* Nav links */}
