@@ -4,8 +4,6 @@ import { useAuth } from "../context/AuthContext";
 import BtnBig from "../components/shared/BtnBig";
 import Input from "../components/shared/Input";
 import { RiMailFill, RiLockFill, RiUserFill } from "@remixicon/react";
-import { supabase } from "../lib/supabase";
-
 export default function SignIn() {
   const [isSignUp, setIsSignUp] = useState<boolean>(true);
   const [username, setUsername] = useState("");
@@ -25,19 +23,13 @@ export default function SignIn() {
     setLoading(true);
 
     if (isSignUp) {
-      const { error } = await signUp(email, password);
+      // Pass the username as the third argument so it gets saved to the profile automatically.
+      // The database has a trigger that reads the full_name from signup metadata
+      // and stores it in the profiles table — no separate update needed.
+      const { error } = await signUp(email, password, username);
       if (error) {
         setError(error.message);
       } else {
-        // Update the profile with the username after sign-up
-        // The profile row is auto-created by the DB trigger on auth.users insert
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user && username) {
-          await supabase
-            .from("profiles")
-            .update({ full_name: username })
-            .eq("id", user.id);
-        }
         setMessage("Check your email for a confirmation link!");
       }
     } else {
