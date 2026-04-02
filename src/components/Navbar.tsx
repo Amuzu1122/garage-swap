@@ -183,6 +183,7 @@ export default function Navbar() {
                   text="Sign Out"
                   btnBg="bg-[#F48C2510]"
                   textColor="text-[#F48C25]"
+                  cursor="cursor-pointer"
                 />
               </button>
             </div>
@@ -197,6 +198,7 @@ export default function Navbar() {
                   text="Sign In"
                   btnBg="bg-[#F48C2510]"
                   textColor="text-[#F48C25]"
+                  cursor="cursor-pointer"
                 />
               </Link>
               <Link
@@ -208,6 +210,7 @@ export default function Navbar() {
                   text="Sign Up"
                   btnBg="bg-[#F48C25]"
                   textColor="text-white"
+                  cursor="cursor-pointer"
                 />
               </Link>
             </div>
