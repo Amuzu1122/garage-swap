@@ -16,10 +16,10 @@ export default function Hero() {
             neighbors and find hidden gems right next door.
           </p>
           <div className="flex gap-4 pt-2 justify-center md:justify-start">
-            <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-5 sm:px-7 py-3 rounded-lg transition-colors text-sm sm:text-base">
+            <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-5 sm:px-7 py-3 rounded-lg transition-colors text-sm sm:text-base cursor-pointer">
               Start Selling
             </button>
-            <button className="border-2 border-orange-300 text-gray-900 hover:bg-orange-400 hover:text-white font-bold px-5 sm:px-7 py-3 rounded-lg transition-colors text-sm sm:text-base">
+            <button className="border-2 border-orange-300 text-gray-900 hover:bg-orange-400 hover:text-white font-bold px-5 sm:px-7 py-3 rounded-lg transition-colors text-sm sm:text-base cursor-pointer">
               Browse Items
             </button>
           </div>
