@@ -6,14 +6,27 @@
 
 
 -- ── 1. PROFILES ─────────────────────────────────────────────
--- One row per user. Created automatically on sign-up via trigger.
+-- The profiles table already exists from the original schema (with 'id' as PK).
+-- We add the new columns the app needs without dropping existing data.
 
-create table if not exists public.profiles (
-  user_id   uuid primary key references auth.users(id) on delete cascade,
-  username  text,
-  phone     text,
-  created_at timestamptz default now()
-);
+alter table public.profiles
+  add column if not exists user_id   uuid references auth.users(id) on delete cascade,
+  add column if not exists username  text,
+  add column if not exists phone     text;
+
+-- Backfill user_id from the existing 'id' column (old schema used 'id' = auth user id)
+update public.profiles set user_id = id where user_id is null;
+
+-- Add unique constraint on user_id if it doesn't already exist
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'profiles_user_id_key'
+  ) then
+    alter table public.profiles add constraint profiles_user_id_key unique (user_id);
+  end if;
+end $$;
 
 -- Trigger function: creates a profile row whenever a new auth user signs up
 create or replace function public.handle_new_user()
