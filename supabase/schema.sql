@@ -74,31 +74,38 @@ alter table public.listings        enable row level security;
 alter table public.saved_listings  enable row level security;
 
 -- profiles: users can read all profiles, but only update their own
+drop policy if exists "profiles: public read" on public.profiles;
 create policy "profiles: public read"
   on public.profiles for select using (true);
 
+drop policy if exists "profiles: owner update" on public.profiles;
 create policy "profiles: owner update"
   on public.profiles for update
   using (auth.uid() = user_id);
 
 -- listings: anyone can read active listings; only the owner can insert/update/delete
+drop policy if exists "listings: public read active" on public.listings;
 create policy "listings: public read active"
   on public.listings for select
   using (status = 'active' or auth.uid() = user_id);
 
+drop policy if exists "listings: owner insert" on public.listings;
 create policy "listings: owner insert"
   on public.listings for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "listings: owner update" on public.listings;
 create policy "listings: owner update"
   on public.listings for update
   using (auth.uid() = user_id);
 
+drop policy if exists "listings: owner delete" on public.listings;
 create policy "listings: owner delete"
   on public.listings for delete
   using (auth.uid() = user_id);
 
 -- saved_listings: users can only see and manage their own bookmarks
+drop policy if exists "saved_listings: owner all" on public.saved_listings;
 create policy "saved_listings: owner all"
   on public.saved_listings for all
   using (auth.uid() = user_id)
