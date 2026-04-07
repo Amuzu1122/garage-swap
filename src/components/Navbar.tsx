@@ -26,7 +26,12 @@ export default function Navbar() {
             handyman
           </span>
           <span className="text-xl lg:text-2xl font-bold text-slate-900">
-            GarageSwap
+            <Link
+              to="/"
+              className="text-slate-700 font-medium hover:text-[#F48C25] transition-colors"
+            >
+              GarageSwap
+            </Link>
           </span>
         </span>
 
@@ -36,7 +41,7 @@ export default function Navbar() {
             to="/"
             className="text-slate-700 font-medium hover:text-[#F48C25] transition-colors"
           >
-            Browse
+            
           </Link>
           <Link
             to="/how-it-works"
@@ -45,7 +50,7 @@ export default function Navbar() {
             How it Works
           </Link>
           <Link
-            to="/"
+            to="/sign-in"
             className="text-slate-700 font-medium hover:text-[#F48C25] transition-colors"
           >
             Start Selling

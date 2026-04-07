@@ -18,6 +18,8 @@ export default function SignIn() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState("");
   const [isPassword, setIsPassword] = useState<Boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   let date_today = new Date().toISOString().split("T")[0];
 
   const setSignUp = () => {
@@ -38,17 +40,19 @@ export default function SignIn() {
 
   // log in function here
   async function handleSignIn(email: string, password: string): Promise<any> {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    setError(null);
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
-      console.log("sorry, ", error);
+      setError(error.message);
     } else {
-      console.log(data);
       navigate("/market/profile");
     }
+    setLoading(false);
   }
 
   // sign up functions here
@@ -57,7 +61,9 @@ export default function SignIn() {
     password: string,
     username: string,
   ) {
-    const { data, error } = await supabase.auth.signUp({
+    setError(null);
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -69,12 +75,11 @@ export default function SignIn() {
     });
 
     if (error) {
-      console.log("Error signing up:", error.message);
-      return;
+      setError(error.message);
     } else {
-      console.log("Signup successful! Profile created via trigger.");
-      navigate("/profile");
+      navigate("/market/profile");
     }
+    setLoading(false);
   }
 
   // handle password visibility function
@@ -121,7 +126,22 @@ export default function SignIn() {
 
       {/* RIGHT SIDE FORM */}
       <div className="flex-1 flex items-center justify-center px-6 sm:px-12 lg:px-20 py-10 lg:py-0">
-        <form className="w-full max-w-md flex flex-col gap-6 lg:gap-8 font-[Poppins]">
+        <form
+          className="w-full max-w-md flex flex-col gap-6 lg:gap-8 font-[Poppins]"
+          onSubmit={(e) => {
+            e.preventDefault();
+            isSignUp
+              ? handleSignUp(email, password, username)
+              : handleSignIn(email, password);
+          }}
+        >
+          {/* Error message */}
+          {error && (
+            <div className="bg-red-50 text-red-600 text-sm p-3 rounded-md">
+              {error}
+            </div>
+          )}
+
           {/* Header */}
           <div>
             <h4 className="text-3xl lg:text-4xl font-bold text-[#0F172A]">
@@ -221,15 +241,9 @@ export default function SignIn() {
 
           {/* Submit */}
           <BtnBig
-            text={isSignUp ? "Create Account" : "Sign In"}
+            text={loading ? "Please wait..." : isSignUp ? "Create Account" : "Sign In"}
             textColor="text-white"
             btnBg="bg-[#F48C25]"
-            onsubmit={(e) => {
-              e.preventDefault();
-              isSignUp
-                ? handleSignUp(email, password, username)
-                : handleSignIn(email, password);
-            }}
           />
 
           {/* Toggle Sign In / Sign Up */}

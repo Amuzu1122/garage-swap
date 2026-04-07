@@ -1,19 +1,17 @@
 import {
   RiFileList2Fill,
-  RiMessage2Fill,
   RiStoreFill,
   RiUser2Fill,
 } from "@remixicon/react";
-import { Gavel } from "lucide-react";
 import React from "react";
-import { type ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { supabase } from "../lib/supabaseClient";
 import BtnBig from "./shared/BtnBig";
 
 interface linkProps {
   name: string;
   path: string;
-  icon: ReactNode;
+  icon: React.ReactElement<{ color?: string }>;
 }
 
 interface SidebarProps {
@@ -24,6 +22,11 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const navigate = useNavigate();
   let location = useLocation();
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/sign-in");
+  };
 
   const links: linkProps[] = [
     { name: "Market", path: "/market", icon: <RiStoreFill /> },
@@ -78,7 +81,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <div
                   className={`w-1 h-full bg-[#F48C25] absolute left-0 ${isActive ? "visible" : "hidden"}`}
                 ></div>
-                {React.cloneElement(link.icon as React.ReactElement, {
+                {React.cloneElement(link.icon, {
                   color: iconColor,
                 })}
                 <p className={`${isActive ? "text-white" : "text-gray-400"}`}>
@@ -93,6 +96,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             text="Sign Out"
             btnBg="bg-[#64748b20]"
             textColor="text-white"
+            onClick={handleSignOut}
           />
         </div>
       </div>

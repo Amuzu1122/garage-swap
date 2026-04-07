@@ -13,6 +13,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [email, setEmail] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -31,6 +32,8 @@ const Profile = () => {
       setLoading(false);
       return;
     }
+
+    setEmail(user.email ?? "");
 
     const { data: profile } = await supabase
       .from("profiles")
@@ -182,7 +185,7 @@ const Profile = () => {
               <input
                 type="text"
                 className="shadow-xs outline-none border border-slate-300 rounded-md px-3 py-2.5 w-full font-[Poppins] text-slate-700 bg-slate-100 cursor-not-allowed"
-                value="myemail@email.com"
+                value={email}
                 disabled
               />
             </div>
